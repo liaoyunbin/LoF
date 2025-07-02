@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using EscapeGame.Core.Extensions;
 
 namespace EscapeGame.Core.Utils{
     public static class ADFUtils{
@@ -95,26 +94,6 @@ namespace EscapeGame.Core.Utils{
             return res;
         }
 
-        /// <summary>
-        /// 获取所有有T特性的方法
-        /// 仅Static
-        /// 消耗较大,建议仅Editor使用
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static List<MethodInfo> GetAllMethodByAttribute<T>() where T : Attribute{
-            var res = new List<MethodInfo>();
-
-            void OnCheck(Type t){
-                var methods = t.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-                var mts     = methods.Where(t => t.GetCustomAttributes(typeof(T)).Any());
-                res.AddRange(mts);
-            }
-
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            assemblies.Ergodic(t => t.GetTypes().Ergodic(OnCheck));
-            return res;
-        }
 
         /// <summary>
         /// 获取属性

@@ -1,5 +1,4 @@
-﻿using Game.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace EscapeGame.Core.Manager
 {
