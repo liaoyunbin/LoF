@@ -20,8 +20,12 @@ https://github.com/focus-creative-games/hybridclr_unity.git        # GitHub
 编辑Packages/manifest.json，在dependencies中添加：
 "com.focus-creative-games.hybridclr_unity": "https://gitee.com/focus-creative-games/hybridclr_unity.git#v2.0.0-rc"
 ```[6,5](@ref)。
+
+
 ​​初始化HybridCLR​​
 菜单栏点击 HybridCLR > Installer → 点击 ​​Install​​ → 等待控制台输出安装成功。
+
+
 ⚙️ ​​二、项目配置与程序集拆分​​
 ​​Player Settings设置​​
 Edit > Project Settings > Player：
