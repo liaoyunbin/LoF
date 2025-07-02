@@ -1,0 +1,7 @@
+/*
+
+一、ssh-keygen 本地生成密钥
+二、id_rsa.pub 公钥  id_rsa：私钥
+三、公钥设置到github 上Setting 部署密钥
+四、ssh -T git@github.com   用于验证SSH是否连接
+*/
