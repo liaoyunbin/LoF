@@ -8,7 +8,7 @@ using System.Threading;
 using UnityEngine;
 
 /// <summary>
-/// åˆ›å»ºæœåŠ¡å™¨ç›‘å¬
+/// ´´½¨·şÎñÆ÷¼àÌı
 /// </summary>
 public class TCPServerNew : MonoBehaviour
 {
@@ -16,35 +16,36 @@ public class TCPServerNew : MonoBehaviour
     private List<TcpClient> _clients = new List<TcpClient>();
     private Thread _serverThread;
     private bool _isRunning = true;
+    private int m_instance = 0;
 
     public void Start()
     {
-        // ç›‘å¬æœ¬åœ° 8888 ç«¯å£
+        // ¼àÌı±¾µØ 8888 ¶Ë¿Ú
         _server = new TcpListener(IPAddress.Any, 8888);
         _server.Start();
-        Debug.Log("æœåŠ¡å™¨å¯åŠ¨ï¼Œç­‰å¾…å®¢æˆ·ç«¯è¿æ¥...");
+        Debug.Log("·şÎñÆ÷Æô¶¯£¬µÈ´ı¿Í»§¶ËÁ¬½Ó...");
 
-        // å¯åŠ¨çº¿ç¨‹å¤„ç†å®¢æˆ·ç«¯è¿æ¥
+        // Æô¶¯Ïß³Ì´¦Àí¿Í»§¶ËÁ¬½Ó
         _serverThread = new Thread(ListenForClients);
         _serverThread.IsBackground = true;
         _serverThread.Start();
     }
 
-    // ç›‘å¬å®¢æˆ·ç«¯è¿æ¥
+    // ¼àÌı¿Í»§¶ËÁ¬½Ó
     private void ListenForClients()
     {
         while (_isRunning)
         {
             TcpClient client = _server.AcceptTcpClient();
             _clients.Add(client);
-            Debug.Log($"å®¢æˆ·ç«¯ {client.Client.RemoteEndPoint} å·²è¿æ¥ï¼Œå½“å‰è¿æ¥æ•°ï¼š{_clients.Count}");
-            // å¯åŠ¨çº¿ç¨‹å¤„ç†å®¢æˆ·ç«¯æ•°æ®
+            Debug.Log($"¿Í»§¶Ë {client.Client.RemoteEndPoint} ÒÑÁ¬½Ó£¬µ±Ç°Á¬½ÓÊı£º{_clients.Count}");
+            // Æô¶¯Ïß³Ì´¦Àí¿Í»§¶ËÊı¾İ
             Thread clientThread = new Thread(HandleClient);
             clientThread.Start(client);
         }
     }
 
-    // å¤„ç†å®¢æˆ·ç«¯æ•°æ®
+    // ´¦Àí¿Í»§¶ËÊı¾İ
     private void HandleClient(object clientObj)
     {
         TcpClient client = (TcpClient)clientObj;
@@ -56,19 +57,19 @@ public class TCPServerNew : MonoBehaviour
             while (_isRunning)
             {
                 int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead == 0) break; // å®¢æˆ·ç«¯æ–­å¼€
+                if (bytesRead == 0) break; // ¿Í»§¶Ë¶Ï¿ª
 
-                // æ¥æ”¶å®¢æˆ·ç«¯è¾“å…¥ï¼ˆå¦‚å°çƒä½ç½®ï¼‰
+                // ½ÓÊÕ¿Í»§¶ËÊäÈë£¨ÈçĞ¡ÇòÎ»ÖÃ£©
                 string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Debug.Log($"æ”¶åˆ°æ¶ˆæ¯: {message}");
+                Debug.Log($"ÊÕµ½ÏûÏ¢: {message}");
 
-                // å¹¿æ’­ç»™æ‰€æœ‰å®¢æˆ·ç«¯
+                // ¹ã²¥¸øËùÓĞ¿Í»§¶Ë
                 Broadcast(message);
             }
         }
         catch (Exception e)
         {
-            Debug.LogError($"å®¢æˆ·ç«¯å¼‚å¸¸æ–­å¼€: {e.Message}");
+            Debug.LogError($"¿Í»§¶ËÒì³£¶Ï¿ª: {e.Message}");
         }
         finally
         {
@@ -77,7 +78,7 @@ public class TCPServerNew : MonoBehaviour
         }
     }
 
-    // å¹¿æ’­æ¶ˆæ¯
+    // ¹ã²¥ÏûÏ¢
     private void Broadcast(string message)
     {
         byte[] data = Encoding.UTF8.GetBytes(message);
@@ -85,7 +86,7 @@ public class TCPServerNew : MonoBehaviour
         {
             if (client.Connected)
             {
-                Debug.Log("å¹¿æ’­" + message);
+                Debug.Log("¹ã²¥" + message);
                 NetworkStream stream = client.GetStream();
                 stream.Write(data, 0, data.Length);
             }

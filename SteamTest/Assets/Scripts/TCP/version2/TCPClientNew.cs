@@ -10,34 +10,34 @@ using UnityEngine.Accessibility;
 using static UnityEditor.PlayerSettings;
 
 /// <summary>
-/// å®¢æˆ·ç«¯è¿æ¥ä¸æ•°æ®æ”¶å‘
+/// ¿Í»§¶ËÁ¬½ÓÓëÊı¾İÊÕ·¢
 /// </summary>
-public class TCPClientNew:MonoBehaviour
+public class TCPClientNew : MonoBehaviour
 {
     private TcpClient _client;
     private NetworkStream _stream;
     private byte[] _buffer = new byte[1024];
 
-    public GameObject remoteBall; // è¿œç¨‹åŒæ­¥çš„å°çƒ
-    public GameObject localBall; // æœ¬åœ°æ§åˆ¶çš„å°çƒ
+    public GameObject remoteBall; // Ô¶³ÌÍ¬²½µÄĞ¡Çò
+    public GameObject localBall; // ±¾µØ¿ØÖÆµÄĞ¡Çò
     private Vector3 _localBalltargetPosition;
     private Vector3 _remoteBalltargetPosition;
 
     private bool _isRunning = true;
-    private int instanceId = 1;
+    private int instanceId = 0;
 
 
     public void Start()
     {
         localBall.SetActive(true);
-        // è¿æ¥æœåŠ¡å™¨
+        // Á¬½Ó·şÎñÆ÷
         _client = new TcpClient();
         _client.Connect("127.0.0.1", 8888);
         _stream = _client.GetStream();
 
         Thread clientThread = new Thread(ReceiveCallbackNew);
         clientThread.Start();
-        // å¯åŠ¨å¼‚æ­¥æ¥æ”¶æ•°æ®
+        // Æô¶¯Òì²½½ÓÊÕÊı¾İ
         // _stream.BeginRead(_buffer, 0, _buffer.Length, ReceiveCallback, null);
     }
 
@@ -45,24 +45,25 @@ public class TCPClientNew:MonoBehaviour
     {
         while (_isRunning)
         {
-            int bytesRead = _stream.Read(_buffer, 0, _buffer.Length); //å¤‡æ³¨ï¼šè¿˜ä¸èƒ½ä¸€ç›´è¯»ã€‚ä¼šæœ‰é—®é¢˜
-            if (bytesRead == 0) break; // å®¢æˆ·ç«¯æ–­å¼€
+            int bytesRead = _stream.Read(_buffer, 0, _buffer.Length);
+            if (bytesRead == 0) break; // ¿Í»§¶Ë¶Ï¿ª
 
-            // æ¥æ”¶å®¢æˆ·ç«¯è¾“å…¥ï¼ˆå¦‚å°çƒä½ç½®ï¼‰
-           
+            // ½ÓÊÕ¿Í»§¶ËÊäÈë£¨ÈçĞ¡ÇòÎ»ÖÃ£©
+
             string message = Encoding.UTF8.GetString(_buffer, 0, bytesRead);
             int uid = GetInstanceId(message);
             Vector3 pos = ParsePosition(message);
-            if(uid != instanceId)
+            if (uid != instanceId)
             {
                 _remoteBalltargetPosition = pos;
-            }else
+            }
+            else
             {
                 _localBalltargetPosition = pos;
             }
         }
     }
-    // æ¥æ”¶æœåŠ¡å™¨å¹¿æ’­
+    // ½ÓÊÕ·şÎñÆ÷¹ã²¥
     private void ReceiveCallback(IAsyncResult result)
     {
         Debug.Log("lorna aaaa");
@@ -71,17 +72,17 @@ public class TCPClientNew:MonoBehaviour
         {
             _buffer = (byte[])result.AsyncState;
             string message = Encoding.UTF8.GetString(_buffer, 0, bytesRead);
-            // è§£æä½ç½®å¹¶æ›´æ–°å°çƒ
+            // ½âÎöÎ»ÖÃ²¢¸üĞÂĞ¡Çò
             Vector3 pos = ParsePosition(message);
 
             Debug.Log("lorna ReceiveCallback" + pos);
             _localBalltargetPosition = pos;
-            // ç»§ç»­ç›‘å¬
+            // ¼ÌĞø¼àÌı
             _stream.BeginRead(_buffer, 0, _buffer.Length, ReceiveCallback, null);
         }
     }
 
-    // å‘é€æœ¬åœ°è¾“å…¥ï¼ˆä¾‹å¦‚é”®ç›˜æ§åˆ¶ï¼‰
+    // ·¢ËÍ±¾µØÊäÈë£¨ÀıÈç¼üÅÌ¿ØÖÆ£©
     public void SendInput(Vector3 position)
     {
         string message = $"{position.x},{position.y},{position.z},{instanceId},";
@@ -97,10 +98,9 @@ public class TCPClientNew:MonoBehaviour
     }
     private int GetInstanceId(string message)
     {
-        Debug.Log("messaghe"+ message);
         string[] parts = message.Split(',');
         return int.Parse(parts[3]);
-}
+    }
 
     public void OnDestroy()
     {
@@ -146,8 +146,8 @@ public class TCPClientNew:MonoBehaviour
         if (_timer >= FrameInterval)
         {
             _timer = 0;
-            // æ‰§è¡Œé€»è¾‘å¸§æ›´æ–°
-            
+            // Ö´ĞĞÂß¼­Ö¡¸üĞÂ
+
         }
         ExecuteGameFrame();
     }

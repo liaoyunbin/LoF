@@ -21,7 +21,7 @@ public class Main:MonoBehaviour {
         }
         if (client != null)
         {
-            client.SetActive(true); 
+            client.SetActive(true);
         }
     }
 
