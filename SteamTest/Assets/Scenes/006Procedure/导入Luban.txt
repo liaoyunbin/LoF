@@ -1,8 +1,73 @@
 /*
 
-打开 Package Manager​​
-Unity 编辑器顶部菜单 → Window > Package Manager。
-​​添加官方包​​
-点击左上角 + → Add package by name... → 输入：
-com.unity.nuget.newtonsoft-json
+一、环境准备​​
+​​安装依赖​​
+​​.NET SDK 8.0+​​：从官网下载安装（Luban工具链运行基础）
+​​Git​​：用于拉取示例项目（可选但推荐）
+​​下载Luban案例项目​​
+git clone https://gitee.com/focus-creative-games/luban_examples.git
+保留关键目录：DataTables（配置表模板）、Tools/Luban（工具本体）
+⚙️ ​​二、Unity项目集成Luban​​
+​​安装Luban Unity包​​
+打开Package Manager → Add package from git URL → 输入：
+https://gitee.com/focus-creative-games/luban_unity.git
+​​启用Unsafe Code​​：Player Settings > Allow 'unsafe' Code（必需）
+​​配置批处理文件（gen.bat）​​
+从案例中复制gen.bat，修改关键路径：
+set WORKSPACE=..\..  # luban_examples根目录
+set LUBAN_DLL=%WORKSPACE%\Tools\Luban\Luban.dll
+set CONF_ROOT=%WORKSPACE%\DataTables
+dotnet %LUBAN_DLL% ^
+   -t client ^
+   -c cs-simple-json ^  # 生成C#代码
+   -d json ^            # 输出JSON数据
+   -x outputCodeDir=Assets/Scripts/Gen ^  # 代码输出路径
+   -x outputDataDir=Assets/StreamingAssets/Configs  # 数据输出路径
+双击运行gen.bat，生成代码与数据文件
+📊 ​​三、配置表设计与规则​​
+​​表格结构规范​​
+​​行类型​​	​​说明​​
+​​字段名行​​	首单元格以##开头（如##id）
+​​类型行​​	首单元格为##type，定义数据类型（如int, string）
+​​分组行​​	标记字段归属：c（客户端）、s（服务器）、c,s（全平台）
+​​数据行​​	从第5行开始填写实际数据
+​​声明表文件（tables.xlsx）​​
+在Datas目录下创建此文件，声明需导出的表格：
+full_name	value_type	input	comment
+item.TbItem	Item	item.xlsx	道具表
+reward.TbReward	Reward	reward.xlsx	奖励表
+💻 ​​四、代码加载与使用​​
+​​初始化配置表​​
+using cfg;
+public class ConfigLoader : MonoBehaviour
+{
+    void Start()
+    {
+        // 初始化Tables实例（自动加载所有配置）
+        var tables = new cfg.Tables(Loader);
+        // 获取道具ID=1001的数据
+        var item = tables.TbItem.Get(1001);
+        Debug.Log($"道具名: {item.Name}, 价格: {item.Price}");
+    }
+
+    // 自定义JSON加载器
+    private JSONNode Loader(string file)
+    {
+        string path = Path.Combine(Application.streamingAssetsPath, "Configs", $"{file}.json");
+        return JSON.Parse(File.ReadAllText(path));
+    }
+}
+​​数据类型映射​​
+生成的代码位于Assets/Scripts/Gen，包含：
+cfg.Tables：全局配置表入口
+cfg.item.Item：对应item.xlsx中定义的道具类
+cfg.reward.Reward：对应reward.xlsx中的奖励类
+⚡️ ​​五、高级功能与优化​​
+​​自动化流程​​
+​​表格新增自动注册​​：在Excel文件名前添加#（如#weapon.xlsx），Luban自动扫描免注册
+​​脚本扩展​​：用Python编写自动更新__tables__.xlsx的脚本，减少手动操作
+​​数据校验​​
+运行check.bat检测配置错误（如ID重复、类型不匹配）
+​​多语言支持​​
+在luban.conf中配置多语言文件路径，自动生成本地化键值对
 */
