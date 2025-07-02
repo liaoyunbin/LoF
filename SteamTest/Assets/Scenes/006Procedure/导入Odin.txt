@@ -1,0 +1,31 @@
+/*
+
+1. 通过Unity Asset Store安装（推荐）​​
+​​步骤​​：
+打开Unity编辑器 → Window > Asset Store。
+搜索 ​​“Odin Inspector and Serializer”​​ → 购买并下载（需登录Unity ID）。
+下载完成后，点击 Import → 勾选全部文件 → 确认导入。
+​​优点​​：自动处理依赖，版本兼容性好。
+​​2. 手动导入.unitypackage文件​​
+​​适用场景​​：从第三方渠道（如CSDN）获取的Odin安装包。
+​​步骤​​：
+下载 .unitypackage 文件（如 Odin-Inspector-and-Serializer-3.0.13.unitypackage）。
+Unity编辑器 → Assets > Import Package > Custom Package → 选择文件并导入。
+​​验证​​：导入后项目出现 Assets/Plugins/Sirenix 文件夹即成功。
+​​3. 使用Package Manager（特定版本）​​
+​​步骤​​：
+编辑 Packages/manifest.json 文件。
+在 dependencies 中添加Git仓库地址（需对应版本）：
+"com.sirenix.odin-inspector": "https://github.com/sirenix/odin-inspector.git#v3.0.13"  
+保存后Unity自动下载。
+⚙️ ​​二、初始化配置​​
+​​重启Unity​​：导入后首次启动会执行初始化脚本。
+​​验证安装​​：
+菜单栏出现 ​​“Tools > Odin Inspector”​​ 选项。
+任意脚本添加 [ShowInInspector] 属性，Inspector面板显示该字段即成功。
+​​序列化模式选择​​（关键！）：
+​​默认模式​​：Odin与Unity原生序列化共存，适合兼容旧项目。
+​​强制Odin模式​​：
+打开 Tools > Odin Inspector > Preferences > Serialization。
+勾选 ​​“Use Odin Serializer everywhere”​​（性能更强，但需测试兼容性）
+*/
