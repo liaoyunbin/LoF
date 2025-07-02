@@ -1,0 +1,79 @@
+/*
+
+以下是Unity项目接入HybridCLR热更新框架的完整流程及关键步骤，结合官方文档和最佳实践整理而成：
+
+🔧 ​​一、环境准备与安装​​
+​​Unity版本要求​​
+支持版本：2019.4.40+、2020.3.26+、2021.3.0+、2022.3.0+（推荐2020.3 LTS）。
+​​必须安装IL2CPP模块​​：在Unity Hub中为对应版本添加Windows/Mac Build Support (IL2CPP)模块。
+​​IDE环境配置​​
+安装Visual Studio 2019+，勾选：
+使用C++的游戏开发
+Unity游戏开发工具
+MSVC v143和Windows 10 SDK。
+​​导入HybridCLR插件​​
+​​方法1（Package Manager）​​：
+Window > Package Manager > + > Add package from git URL，输入：
+https://gitee.com/focus-creative-games/hybridclr_unity.git#v2.0.0-rc  # Gitee（国内推荐）
+https://github.com/focus-creative-games/hybridclr_unity.git        # GitHub
+​​方法2（manifest.json）​​：
+编辑Packages/manifest.json，在dependencies中添加：
+"com.focus-creative-games.hybridclr_unity": "https://gitee.com/focus-creative-games/hybridclr_unity.git#v2.0.0-rc"
+```[6,5](@ref)。
+​​初始化HybridCLR​​
+菜单栏点击 HybridCLR > Installer → 点击 ​​Install​​ → 等待控制台输出安装成功。
+⚙️ ​​二、项目配置与程序集拆分​​
+​​Player Settings设置​​
+Edit > Project Settings > Player：
+​​Scripting Backend​​: IL2CPP
+​​Api Compatibility Level​​: .NET 4.x
+​​取消勾选​​ Use incremental GC（增量GC暂不支持）。
+​​代码拆分（主工程 vs 热更新程序集）​​
+​​主工程程序集​​：核心框架、不可变代码（如Assembly-CSharp.dll）。
+​​热更新程序集​​：
+创建文件夹（如HotUpdateScripts）。
+右键文件夹 → Create > Assembly Definition → 命名（如HotUpdate）。
+​​依赖规则​​：热更新程序集可引用主工程，反之禁止。
+​​HybridCLR设置​​
+菜单栏 HybridCLR > Settings：
+​​Hot Update Assemblies​​：添加HotUpdate.dll（程序集名称，不带后缀）。
+​​Hot Update Assembly Definitions​​：拖入创建的Assembly Definition文件。
+📦 ​​三、热更新实现流程​​
+​​生成AOT元数据​​
+执行 HybridCLR > Generate AOT Generic Reference → 生成AOTGenericReference.cs（避免泛型崩溃）。
+​​打包热更新DLL​​
+在热更新脚本文件夹内编写代码（如TestHotUpdate.cs）：
+public class TestHotUpdate : MonoBehaviour {
+    void Start() { Debug.Log("热更新生效！"); }
+}
+构建项目 → 从输出目录复制HotUpdate.dll（如Temp/StagingArea/Managed）。
+​​动态加载热更新DLL​​
+​​本地测试​​：将DLL放入StreamingAssets目录。
+​​运行时加载​​：
+// 加载DLL字节
+byte[] dllBytes = File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, "HotUpdate.dll"));
+Assembly hotUpdateAssembly = System.Reflection.Assembly.Load(dllBytes);
+// 实例化类
+Type type = hotUpdateAssembly.GetType("TestHotUpdate");
+gameObject.AddComponent(type);
+```[4,6](@ref)。
+​​服务器热更新流程​​
+​​版本控制​​：创建JSON配置表（含DLL名称、哈希值、版本号）。
+​​下载管理器​​：用UnityWebRequest对比并下载最新DLL。
+​​元数据补充（关键！）​​：
+若热更代码引用主工程泛型，需补充元数据：
+// 加载AOT元数据DLL（如mscorlib.dll）
+byte[] aotDllBytes = ...; // 从资源加载
+RuntimeApi.LoadMetadataForAOTAssembly(aotDllBytes, HomologousImageMode.SuperSet);
+```[6](@ref)。
+🐞 ​​四、测试与调试技巧​​
+​​验证热更新​​
+运行场景 → 检查日志是否输出热更新生效！。
+修改TestHotUpdate.cs逻辑 → 重新编译DLL → 替换文件 → 重启游戏观察变化。
+​​常见问题解决​​
+​​问题​​	​​解决方案​​
+HybridCLR未初始化	检查HybridCLR > Installer是否成功；确认Player Settings设置正确。
+泛型调用崩溃	重新生成AOT元数据 → 确保补充元数据代码执行。
+热更新DLL加载失败	检查DLL路径是否正确；确认HybridCLR Settings中程序集名称匹配。
+增量GC未关闭	必须在Player Settings中取消勾选Use incremental GC。
+*/
