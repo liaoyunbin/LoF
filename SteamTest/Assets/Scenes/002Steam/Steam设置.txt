@@ -76,7 +76,7 @@ SteamManager.Initialized=false	- 确保Steam客户端已运行并登录
 login 开发者账号 密码
 run_app_build 路径/app_build_xxx.vdf
 
-
+-------------------------------------------------------------------------------------------------------------------
 
  Steamworks.NET：针对 Unity/C# 的“快捷适配器”​​
 ​​作用​​：
@@ -85,8 +85,20 @@ run_app_build 路径/app_build_xxx.vdf
 ​​语言​​：专为 C# 和 Unity 优化，代码简洁（例如 SteamUserStats.SetAchievement("成就ID") 即可解锁成就）。
 ​​易用性​​：直接导入 Unity 项目，自动处理依赖，无需手动编译或配置原生库。
 ​​功能覆盖​​：支持成就、云存档、好友系统等常用功能，但深度定制需结合 SDK
+-------------------------------------------------------------------------------------------------------------------
+S
+SteamAPI.Init() ：检查 steam_appid.txt 是否存在且 App ID 正确;建立游戏与 Steam 客户端的连接
+steamUser.BLoggedOn：用于检测玩家是否通过steam客户端登录并完成身份验证
 
+//建议在返回 false 时添加重试逻辑或引导用户手动启动 Steam：
+if (!SteamUser.BLoggedOn()) {
+    Application.OpenURL("steam://run/123456"); // 123456 替换为真实 App ID
+    Application.Quit();
+}
 
+SteamApps.BIsSubscribedApp 是 ​​Steamworks API​​ 中的一个关键函数，主要用于检测当前登录的Steam用户是否拥有（订阅）指定AppID的游戏或软件许可证
+
+-------------------------------------------------------------------------------------------------------------------
 
 Steam的App ID（应用程序ID）是游戏接入Steam平台的核心标识符，其作用贯穿开发、测试、发布和运营全流程。以下是其核心作用及技术细节
 
@@ -102,6 +114,9 @@ Steam的App ID（应用程序ID）是游戏接入Steam平台的核心标识符�
 
 
 编辑器模式下：重启app.steam_appid.txt 里的数据改成正确的才能初始化成功
+没有重启app.        steam.appid.txt好像不会生效了
+猜测：RedistInstall.cs脚本没有steam_appid.txt时会生成一个，并赋值480进去。 游戏内部好像是默认先调用这个txt里的数据，不存在txt的时候，
+调用传进去的数据。来斤逻辑驱动。 如果旧的appid没有正常执行，改appid再次执行成功后，再换回依旧能正常执行
 
 等待测试：
 构建阶段：删除文件 + 代码硬编码 App ID

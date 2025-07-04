@@ -35,7 +35,7 @@ public class SteamManager : MonoBehaviour {
 			}
 		}
 	}
-	private const int s_appID = 113639650;
+	private const int s_appID = 3639650;
 	protected bool m_bInitialized = false;
 	public static bool Initialized {
 		get {
