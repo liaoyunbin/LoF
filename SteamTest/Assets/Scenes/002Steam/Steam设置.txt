@@ -75,4 +75,39 @@ SteamManager.Initialized=false	- 确保Steam客户端已运行并登录
 通过命令行工具 steamcmd.exe 登录并上传：
 login 开发者账号 密码
 run_app_build 路径/app_build_xxx.vdf
+
+
+
+ Steamworks.NET：针对 Unity/C# 的“快捷适配器”​​
+​​作用​​：
+基于 Steamworks SDK 的​​开源封装库​​（C# 编写），将复杂的 C++ API 转化为 Unity/C# 可直接调用的接口。相当于给发动机加装“方向盘和油门”。
+​​特点​​：
+​​语言​​：专为 C# 和 Unity 优化，代码简洁（例如 SteamUserStats.SetAchievement("成就ID") 即可解锁成就）。
+​​易用性​​：直接导入 Unity 项目，自动处理依赖，无需手动编译或配置原生库。
+​​功能覆盖​​：支持成就、云存档、好友系统等常用功能，但深度定制需结合 SDK
+
+
+
+Steam的App ID（应用程序ID）是游戏接入Steam平台的核心标识符，其作用贯穿开发、测试、发布和运营全流程。以下是其核心作用及技术细节
+
+​1. 身份验证与平台接入​​
+​​唯一身份标识​​：每个Steam游戏拥有唯一的App ID（如480为测试ID），用于区分不同游戏，确保Steam服务正确关联到对应项目。
+​​初始化SteamAPI​​：在Unity中，需通过SteamManager脚本初始化Steamworks SDK，而​​App ID是初始化的必要条件​​。
+若ID错误或缺失，SteamAPI将无法启动，导致成就、云存档等功能失效。
+​​测试与调试​​：开发阶段可在steam_appid.txt中配置App ID（默认480为测试ID），使游戏在未发布时也能调用Steam基础功能（如获取用户名）
+
+如果 Steam 未运行或者游戏并非通过 Steam 启动，SteamAPI_RestartAppIfNecessary 将启动 Steam 客户端，并且如果用户拥有该游戏，还会重新启动该游戏。
+这可以作为一种基本的数字版权管理（DRM）形式。请注意，这将运行您在 Steam 中安装的任何版本。这可能并非我们当前正在运行的精确可执行文件。
+一旦您从 Valve 处获得 Steam 应用 ID，就需要将其替换掉 AppId_t.Invalid，并从游戏仓库中移除 steam_appid.txt。例如：“(AppId_t)480” 或 “new AppId_t(480)”
+
+
+编辑器模式下：重启app.steam_appid.txt 里的数据改成正确的才能初始化成功
+
+等待测试：
+构建阶段：删除文件 + 代码硬编码 App ID
+
+​​测试启动流程​​
+安装正式版游戏后，尝试直接双击 .exe 文件，​​应自动触发 Steam 客户端启动并验证权限​​。若游戏能独立运行，说明 steam_appid.txt 未删除或 DRM 代码未生效。
+​​检查功能完整性​​
+确保成就解锁、云存档同步等功能在 Steam 客户端运行时正常生效
 */
